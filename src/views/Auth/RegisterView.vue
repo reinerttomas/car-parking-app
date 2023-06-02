@@ -1,15 +1,25 @@
 <template>
-  <form @submit.prevent="() => {}" novalidate>
+  <form @submit.prevent="handleSubmit()" novalidate>
     <div class="flex flex-col mx-auto md:w-96 w-full">
       <h1 class="text-2xl font-bold mb-4 text-center">Register</h1>
       <div class="flex flex-col gap-2 mb-4">
         <label for="name" class="required">Name</label>
-        <input id="name" name="name" type="text" class="form-input" autocomplete="name" required />
+        <input
+          v-model="form.name"
+          id="name"
+          name="name"
+          type="text"
+          class="form-input"
+          autocomplete="name"
+          required
+        />
+        <ValidationError :errors="errors" field="name" />
       </div>
 
       <div class="flex flex-col gap-2 mb-4">
         <label for="email" class="required">Email</label>
         <input
+          v-model="form.email"
           id="email"
           name="email"
           type="email"
@@ -17,11 +27,13 @@
           autocomplete="email"
           required
         />
+        <ValidationError :errors="errors" field="email" />
       </div>
 
       <div class="flex flex-col gap-2 mb-4">
         <label for="password" class="required">Password</label>
         <input
+          v-model="form.password"
           id="password"
           name="password"
           type="password"
@@ -29,11 +41,13 @@
           autocomplete="new-password"
           required
         />
+        <ValidationError :errors="errors" field="password" />
       </div>
 
       <div class="flex flex-col gap-2">
-        <label for="password_confirmation" class="required"> Confirm password </label>
+        <label for="password_confirmation" class="required">Confirm password</label>
         <input
+          v-model="form.password_confirmation"
           id="password_confirmation"
           name="password_confirmation"
           type="password"
@@ -51,3 +65,12 @@
     </div>
   </form>
 </template>
+
+<script setup>
+import { onBeforeUnmount } from 'vue'
+import { useRegister } from '@/stores/register'
+
+const { form, errors, resetForm, handleSubmit } = useRegister()
+
+onBeforeUnmount(resetForm)
+</script>
