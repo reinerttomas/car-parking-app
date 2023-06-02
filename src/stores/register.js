@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { reactive } from 'vue'
+import { reactive, ref } from 'vue'
 import client from '@/services/http'
 
 export const useRegister = defineStore('register', () => {
@@ -11,6 +11,7 @@ export const useRegister = defineStore('register', () => {
   })
 
   const errors = reactive({})
+  const loading = ref(false)
 
   function resetForm() {
     form.name = ''
@@ -22,6 +23,9 @@ export const useRegister = defineStore('register', () => {
   }
 
   async function handleSubmit() {
+    if (loading.value) return
+
+    loading.value = true
     errors.value = {}
 
     try {
@@ -34,8 +38,9 @@ export const useRegister = defineStore('register', () => {
     } finally {
       form.password = ''
       form.password_confirmation = ''
+      loading.value = false
     }
   }
 
-  return { form, errors, resetForm, handleSubmit }
+  return { form, errors, loading, resetForm, handleSubmit }
 })
