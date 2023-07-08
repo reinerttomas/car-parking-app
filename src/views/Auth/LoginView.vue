@@ -1,33 +1,21 @@
 <template>
-  <form @submit.prevent="handleRegister" novalidate>
+  <form @submit.prevent="handleLogin" novalidate>
     <div class="flex flex-col mx-auto md:w-96 w-full">
-      <h1 class="text-2xl font-bold mb-4 text-center">Register</h1>
-      <div class="flex flex-col gap-2 mb-4">
-        <label for="name" class="required">Name</label>
-        <input
-          v-model="name"
-          id="name"
-          name="name"
-          type="text"
-          class="form-input"
-          autocomplete="name"
-          required
-        />
-        <ValidationError v-if="isError" :messages="errors.value?.name" field="name" />
-      </div>
-
+      <h1 class="text-2xl font-bold mb-4 text-center">Login</h1>
       <div class="flex flex-col gap-2 mb-4">
         <label for="email" class="required">Email</label>
         <input
           v-model="email"
           id="email"
           name="email"
-          type="email"
+          type="text"
           class="form-input"
+          autofocus
           autocomplete="email"
           required
+          :disabled="isLoading"
         />
-        <ValidationError v-if="isError" :messages="errors.value?.email" field="email" />
+        <ValidationError v-if="isError" :messages="errors.value?.email" />
       </div>
 
       <div class="flex flex-col gap-2 mb-4">
@@ -37,24 +25,12 @@
           id="password"
           name="password"
           type="password"
-          class="form-input"
-          autocomplete="new-password"
+          class="p-1 border bg-gray-100"
+          autocomplete="current-password"
           required
+          :disabled="isLoading"
         />
-        <ValidationError v-if="isError" :messages="errors.value?.password" field="password" />
-      </div>
-
-      <div class="flex flex-col gap-2">
-        <label for="password_confirmation" class="required">Confirm password</label>
-        <input
-          v-model="passwordConfirmation"
-          id="password_confirmation"
-          name="password_confirmation"
-          type="password"
-          class="form-input"
-          autocomplete="new-password"
-          required
-        />
+        <ValidationError v-if="isError" :messages="errors.value?.password" />
       </div>
 
       <div class="border-t h-[1px] my-6"></div>
@@ -62,7 +38,7 @@
       <div class="flex flex-col gap-2">
         <button type="submit" class="btn btn-primary" :disabled="isLoading">
           <IconSpinner v-show="isLoading" />
-          Register
+          Login
         </button>
       </div>
     </div>
@@ -75,31 +51,27 @@ import ValidationError from '@/components/ValidationError.vue'
 import { reactive, ref } from 'vue'
 import { useMutation } from 'vue-query'
 import { useRouter } from 'vue-router'
-import { register } from '@/api/auth'
+import { login } from '@/api/auth'
 import { useAuthStore } from '@/stores/auth'
 
 const router = useRouter()
-const name = ref('')
 const email = ref('')
 const password = ref('')
-const passwordConfirmation = ref('')
 const errors = reactive({})
 
 const {
   isLoading,
   isError,
-  mutateAsync: registerMutate
-} = useMutation((newUser) => register(newUser))
+  mutateAsync: loginMutate
+} = useMutation((credentials) => login(credentials))
 
-const handleRegister = async () => {
+const handleLogin = async () => {
   const { setAccessToken } = useAuthStore()
 
   try {
-    const { accessToken } = await registerMutate({
-      name: name.value,
+    const { accessToken } = await loginMutate({
       email: email.value,
-      password: password.value,
-      password_confirmation: passwordConfirmation.value
+      password: password.value
     })
 
     setAccessToken(accessToken)
@@ -110,7 +82,6 @@ const handleRegister = async () => {
     }
   } finally {
     password.value = ''
-    passwordConfirmation.value = ''
   }
 }
 </script>
