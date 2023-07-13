@@ -12,13 +12,14 @@
       <RouterLink class="router-link" :to="{ name: 'home' }"> Home </RouterLink>
     </div>
     <div class="flex gap-4 items-center">
-      <RouterLink v-show="!isAuthenticated" class="router-link" :to="{ name: 'login' }"
-        >Login</RouterLink
-      >
-      <RouterLink v-show="!isAuthenticated" class="router-link" :to="{ name: 'register' }"
-        >Register</RouterLink
-      >
-      <button @click="handleLogout" v-show="isAuthenticated" class="router-link">Logout</button>
+      <template v-if="isAuthenticated">
+        <RouterLink class="router-link" :to="{ name: 'profile' }">Profile</RouterLink>
+        <button @click="handleLogout" class="router-link">Logout</button>
+      </template>
+      <template v-else>
+        <RouterLink class="router-link" :to="{ name: 'login' }">Login</RouterLink>
+        <RouterLink class="router-link" :to="{ name: 'register' }">Register</RouterLink>
+      </template>
     </div>
   </nav>
 </template>
