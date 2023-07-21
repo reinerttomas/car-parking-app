@@ -14,6 +14,9 @@
     <div class="flex gap-4 items-center">
       <template v-if="isAuthenticated">
         <RouterLink class="router-link" :to="{ name: 'profile' }">Profile</RouterLink>
+        <RouterLink class="router-link" :to="{ name: 'change-password' }"
+          >Change Password</RouterLink
+        >
         <button @click="handleLogout" class="router-link">Logout</button>
       </template>
       <template v-else>

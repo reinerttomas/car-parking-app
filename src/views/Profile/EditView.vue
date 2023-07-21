@@ -10,7 +10,7 @@
           name="name"
           id="name"
           class="form-input"
-          v-model="profile.name"
+          v-model="data.name"
           :disabled="isLoading"
         />
         <ValidationError v-if="isError" :messages="errors.value?.name" />
@@ -22,7 +22,7 @@
           name="email"
           id="email"
           class="form-input"
-          v-model="profile.email"
+          v-model="data.email"
           :disabled="isLoading"
         />
         <ValidationError v-if="isError" :messages="errors.value?.email" />
@@ -45,7 +45,7 @@ import { onMounted, reactive } from 'vue'
 import { useMutation } from 'vue-query'
 import { getProfile, updateProfile } from '@/api/profile'
 
-const profile = reactive({
+const data = reactive({
   name: '',
   email: ''
 })
@@ -55,8 +55,8 @@ const fetcher = async () => {
   try {
     const { name, email } = await getProfile()
 
-    profile.name = name
-    profile.email = email
+    data.name = name
+    data.email = email
   } catch (error) {
     console.error(error)
     /**
@@ -70,16 +70,18 @@ const {
   isSuccess,
   isError,
   mutateAsync: updateMutate
-} = useMutation((profile) => updateProfile(profile))
+} = useMutation((data) => updateProfile(data))
 
 const handleSubmit = async () => {
   try {
-    const { name, email } = await updateMutate(profile)
+    const { name, email } = await updateMutate(data)
 
-    profile.name = name
-    profile.email = email
+    data.name = name
+    data.email = email
   } catch (error) {
-    console.error(error)
+    if (error.response.data.errors) {
+      errors.value = error.response.data.errors
+    }
     /**
      * TODO: add error message
      */

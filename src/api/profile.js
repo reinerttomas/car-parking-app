@@ -13,3 +13,8 @@ export const updateProfile = async (profile) => {
 
   return data
 }
+
+export const changePassword = async (passwords) => {
+  const { client } = useAxios()
+  await client.put('/password', passwords)
+}
