@@ -16,5 +16,5 @@ export const updateProfile = async (profile) => {
 
 export const changePassword = async (passwords) => {
   const { client } = useAxios()
-  await client.put('/password', passwords)
+  await client.put('password', passwords)
 }

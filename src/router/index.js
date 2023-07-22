@@ -39,12 +39,6 @@ const router = createRouter({
       beforeEnter: guest
     },
     {
-      path: '/vehicles',
-      name: 'vehicles',
-      component: () => import('@/views/Vehicles/ListView.vue'),
-      beforeEnter: auth
-    },
-    {
       path: '/profile',
       name: 'profile',
       component: () => import('@/views/Profile/EditView.vue'),
@@ -54,6 +48,18 @@ const router = createRouter({
       path: '/profile/change-password',
       name: 'change-password',
       component: () => import('@/views/Profile/ChangePassword.vue'),
+      beforeEnter: auth
+    },
+    {
+      path: '/vehicles',
+      name: 'vehicles',
+      component: () => import('@/views/Vehicles/ListView.vue'),
+      beforeEnter: auth
+    },
+    {
+      path: '/vehicles/create',
+      name: 'vehicles-create',
+      component: () => import('@/views/Vehicles/CreateView.vue'),
       beforeEnter: auth
     }
   ]
