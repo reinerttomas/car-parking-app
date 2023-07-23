@@ -8,7 +8,7 @@
 
     <div class="border-t h-[1px] my-6"></div>
 
-    <div class="flex flex-col gap-2">
+    <div v-if="!isLoading" class="flex flex-col gap-2">
       <div
         v-for="vehicle in vehicles"
         :key="vehicle.id"
@@ -23,7 +23,11 @@
           </div>
         </div>
         <div class="flex gap-1">
-          <button type="button" class="btn btn-secondary text-sm">Edit</button>
+          <RouterLink
+            :to="{ name: 'vehicles-edit', params: { id: vehicle.id } }"
+            class="btn btn-secondary text-sm"
+            >Edit</RouterLink
+          >
           <button type="button" class="btn text-white bg-red-600 hover:bg-red-500 text-sm">
             X
           </button>
@@ -34,21 +38,11 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue'
+import { useQuery } from 'vue-query'
 import { getVehicles } from '@/api/vehicle'
 
-const vehicles = ref([])
-
-onMounted(async () => {
-  try {
-    const { data } = await getVehicles()
-    vehicles.value = data
-  } catch (error) {
-    console.error(error)
-
-    /**
-     * TODO: add error message
-     */
-  }
+const { isLoading, data: vehicles } = useQuery('vehicles', async () => {
+  const { data } = await getVehicles()
+  return data
 })
 </script>

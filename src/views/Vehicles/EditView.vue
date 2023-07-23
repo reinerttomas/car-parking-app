@@ -1,13 +1,13 @@
 <template>
   <form @submit.prevent="handleSubmit" novalidate>
     <div class="flex flex-col mx-auto md:w-96 w-full">
-      <h1 class="text-2xl font-bold mb-4 text-center">Add vehicle</h1>
+      <h1 class="text-2xl font-bold mb-4 text-center">Edit vehicle</h1>
       <div class="flex flex-col gap-2 mb-4">
-        <label for="plateNumber" class="required">License plate</label>
+        <label for="plate_number" class="required">License plate</label>
         <input
           v-model="vehicle.plateNumber"
-          id="plateNumber"
-          name="plateNumber"
+          id="plate_number"
+          name="plate_number"
           type="text"
           class="form-input plate"
           :disabled="isLoading"
@@ -15,7 +15,7 @@
         <ValidationError v-if="isError" :messages="errors.value?.plateNumber" />
       </div>
       <div class="flex flex-col gap-2">
-        <label for="description" class="required">Description</label>
+        <label for="description">Description</label>
         <input
           v-model="vehicle.description"
           id="description"
@@ -33,7 +33,7 @@
       <div class="flex flex-col gap-2">
         <button type="submit" class="btn btn-primary" :disabled="isLoading">
           <IconSpinner class="animate-spin" v-show="isLoading" />
-          Save vehicle
+          Update vehicle
         </button>
         <RouterLink :to="{ name: 'vehicles' }" class="btn btn-secondary">Cancel</RouterLink>
       </div>
@@ -44,30 +44,49 @@
 <script setup>
 import IconSpinner from '@/components/IconSpinner.vue'
 import ValidationError from '@/components/ValidationError.vue'
-import { reactive } from 'vue'
+import { onMounted, reactive } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import { getVehicle, updateVehicle } from '@/api/vehicle'
 import { useMutation } from 'vue-query'
-import { storeVehicle } from '@/api/vehicle'
-import { useRouter } from 'vue-router'
 
+const route = useRoute()
+const router = useRouter()
 const vehicle = reactive({
   plateNumber: '',
   description: ''
 })
 const errors = reactive({})
 
+const fetcher = async () => {
+  try {
+    const { plateNumber, description } = await getVehicle(route.params.id)
+
+    vehicle.plateNumber = plateNumber
+    vehicle.description = description
+  } catch (error) {
+    if (error.response.status === 404) {
+        router.push({name: 'not-found'})
+    }
+
+    console.error(error)
+    /**
+     * TODO: add error message
+     */
+  }
+}
+
 const {
   isLoading,
   isError,
-  mutateAsync: storeVehicleMutate
-} = useMutation((vehicle) => storeVehicle(vehicle))
-
-const router = useRouter()
+  mutateAsync: updateMutate
+} = useMutation((vehicle) => updateVehicle(route.params.id, vehicle))
 
 const handleSubmit = async () => {
   try {
-    await storeVehicleMutate(vehicle)
+    const { plateNumber, description } = await updateMutate(vehicle)
 
-    router.push({ name: 'vehicles' })
+    vehicle.plateNumber = plateNumber
+    vehicle.description = description
   } catch (error) {
     if (error.response.status === 422) {
       errors.value = error.response.data.errors
@@ -78,4 +97,6 @@ const handleSubmit = async () => {
      */
   }
 }
+
+onMounted(fetcher)
 </script>

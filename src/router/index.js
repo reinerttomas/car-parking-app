@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+import { getVehicle } from '@/api/vehicle'
 import HomeView from '../views/HomeView.vue'
 
 function guest() {
@@ -18,6 +19,20 @@ function auth() {
   }
 }
 
+async function vehicle(to) {
+  const { id } = to.params
+
+  try {
+    await getVehicle(id)
+  } catch (error) {
+    if (error.response.status === 404) {
+      return { name: 'not-found' }
+    }
+
+    throw error
+  }
+}
+
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
@@ -25,6 +40,11 @@ const router = createRouter({
       path: '/',
       name: 'home',
       component: HomeView
+    },
+    {
+      path: '/:pathMatch(.*)*',
+      name: 'not-found',
+      component: () => import('@/views/NotFoundView.vue')
     },
     {
       path: '/login',
@@ -61,6 +81,12 @@ const router = createRouter({
       name: 'vehicles-create',
       component: () => import('@/views/Vehicles/CreateView.vue'),
       beforeEnter: auth
+    },
+    {
+      path: '/vehicles/:id/edit',
+      name: 'vehicles-edit',
+      component: () => import('@/views/Vehicles/EditView.vue'),
+      beforeEnter: [auth, vehicle]
     }
   ]
 })
