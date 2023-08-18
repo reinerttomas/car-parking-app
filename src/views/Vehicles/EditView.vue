@@ -1,5 +1,5 @@
 <template>
-  <form @submit.prevent="handleSubmit" novalidate>
+  <form v-if="isSuccess" @submit.prevent="handleSubmit" novalidate>
     <div class="flex flex-col mx-auto md:w-96 w-full">
       <h1 class="text-2xl font-bold mb-4 text-center">Edit vehicle</h1>
       <div class="flex flex-col gap-2 mb-4">
@@ -44,59 +44,41 @@
 <script setup>
 import IconSpinner from '@/components/IconSpinner.vue'
 import ValidationError from '@/components/ValidationError.vue'
-import { onMounted, reactive } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
-import { getVehicle, updateVehicle } from '@/api/vehicle'
-import { useMutation } from 'vue-query'
+import { reactive, ref, watchEffect } from 'vue'
+import { useRoute } from 'vue-router'
+import useVehicleQuery from '@/composables/Vehicle/useVehicleQuery'
+import useUpdateVehicleMutation from '@/composables/Vehicle/useUpdateVehicleMutation'
+import { isAxiosError } from 'axios'
 
 const route = useRoute()
-const router = useRouter()
+const id = ref(route.params.id)
 const vehicle = reactive({
   plateNumber: '',
   description: ''
 })
 const errors = reactive({})
 
-const fetcher = async () => {
-  try {
-    const { plateNumber, description } = await getVehicle(route.params.id)
+const { isSuccess, data } = useVehicleQuery(id)
 
+watchEffect(() => {
+  if (data.value) {
+    const { plateNumber, description } = data.value
     vehicle.plateNumber = plateNumber
     vehicle.description = description
-  } catch (error) {
-    if (error.response.status === 404) {
-        router.push({name: 'not-found'})
-    }
-
-    console.error(error)
-    /**
-     * TODO: add error message
-     */
   }
-}
+})
 
-const {
-  isLoading,
-  isError,
-  mutateAsync: updateMutate
-} = useMutation((vehicle) => updateVehicle(route.params.id, vehicle))
+const { isLoading, isError, mutateAsync: updateVehicle } = useUpdateVehicleMutation(id)
 
 const handleSubmit = async () => {
   try {
-    const { plateNumber, description } = await updateMutate(vehicle)
-
-    vehicle.plateNumber = plateNumber
-    vehicle.description = description
+    await updateVehicle(vehicle)
   } catch (error) {
-    if (error.response.status === 422) {
-      errors.value = error.response.data.errors
+    if (isAxiosError(error)) {
+      if (error.response.data.errors) {
+        errors.value = error.response.data.errors
+      }
     }
-
-    /**
-     * TODO: add error message
-     */
   }
 }
-
-onMounted(fetcher)
 </script>

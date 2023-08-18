@@ -10,7 +10,7 @@
 
     <div v-if="!isLoading" class="flex flex-col gap-2">
       <div
-        v-for="vehicle in vehicles"
+        v-for="vehicle in vehicles.data"
         :key="vehicle.id"
         class="flex bg-gray-100 w-full p-2 justify-between"
       >
@@ -28,7 +28,11 @@
             class="btn btn-secondary text-sm"
             >Edit</RouterLink
           >
-          <button type="button" class="btn text-white bg-red-600 hover:bg-red-500 text-sm">
+          <button
+            @click="handleDelete(vehicle)"
+            type="button"
+            class="btn text-white bg-red-600 hover:bg-red-500 text-sm"
+          >
             X
           </button>
         </div>
@@ -38,11 +42,17 @@
 </template>
 
 <script setup>
-import { useQuery } from 'vue-query'
-import { getVehicles } from '@/api/vehicle'
+import useVehiclesQuery from '@/composables/Vehicle/useVehiclesQuery'
+import useDeleteVehicleMutation from '@/composables/Vehicle/useDeleteVehicleMutation'
 
-const { isLoading, data: vehicles } = useQuery('vehicles', async () => {
-  const { data } = await getVehicles()
-  return data
-})
+const { isLoading, data: vehicles } = useVehiclesQuery()
+const { mutateAsync: deleteVehicle } = useDeleteVehicleMutation()
+
+const handleDelete = async (vehicle) => {
+  try {
+    await deleteVehicle(vehicle.id)
+  } catch (error) {
+    console.error(error)
+  }
+}
 </script>

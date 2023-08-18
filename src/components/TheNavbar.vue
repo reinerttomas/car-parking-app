@@ -32,23 +32,17 @@
 </template>
 
 <script setup>
-import { RouterLink, useRouter } from 'vue-router'
-import { useMutation } from 'vue-query'
+import { RouterLink } from 'vue-router'
 import { storeToRefs } from 'pinia'
-import { logout } from '@/api/auth'
 import { useAuthStore } from '@/stores/auth'
+import useLogoutMutation from '@/composables/Auth/useLogoutMutation'
 
-const router = useRouter()
 const { isAuthenticated } = storeToRefs(useAuthStore())
-const { destroyAccessToken } = useAuthStore()
-const { mutateAsync: logoutMutate } = useMutation(() => logout())
+const { mutateAsync } = useLogoutMutation()
 
 const handleLogout = async () => {
   try {
-    await logoutMutate()
-
-    destroyAccessToken()
-    router.push({ name: 'login' })
+    await mutateAsync()
   } catch (error) {
     console.error(error)
   }

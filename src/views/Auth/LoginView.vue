@@ -5,7 +5,7 @@
       <div class="flex flex-col gap-2 mb-4">
         <label for="email" class="required">Email</label>
         <input
-          v-model="email"
+          v-model="credentials.email"
           id="email"
           name="email"
           type="text"
@@ -21,7 +21,7 @@
       <div class="flex flex-col gap-2 mb-4">
         <label for="password" class="required">Password</label>
         <input
-          v-model="password"
+          v-model="credentials.password"
           id="password"
           name="password"
           type="password"
@@ -48,40 +48,29 @@
 <script setup>
 import IconSpinner from '@/components/IconSpinner.vue'
 import ValidationError from '@/components/ValidationError.vue'
-import { reactive, ref } from 'vue'
-import { useMutation } from 'vue-query'
-import { useRouter } from 'vue-router'
-import { login } from '@/api/auth'
-import { useAuthStore } from '@/stores/auth'
+import { reactive } from 'vue'
+import useLoginMutation from '@/composables/Auth/useLoginMutation'
+import { AxiosError } from 'axios'
 
-const router = useRouter()
-const email = ref('')
-const password = ref('')
+const credentials = reactive({
+  email: '',
+  password: ''
+})
 const errors = reactive({})
 
-const {
-  isLoading,
-  isError,
-  mutateAsync: loginMutate
-} = useMutation((credentials) => login(credentials))
+const { isLoading, isError, mutateAsync: login } = useLoginMutation()
 
 const handleLogin = async () => {
-  const { setAccessToken } = useAuthStore()
-
   try {
-    const { accessToken } = await loginMutate({
-      email: email.value,
-      password: password.value
-    })
-
-    setAccessToken(accessToken)
-    router.push({ name: 'vehicles' })
+    await login(credentials)
   } catch (error) {
-    if (error.response.data.errors) {
-      errors.value = error.response.data.errors
+    if (error instanceof AxiosError) {
+      if (error.response.data.errors) {
+        errors.value = error.response.data.errors
+      }
     }
   } finally {
-    password.value = ''
+    credentials.password = ''
   }
 }
 </script>

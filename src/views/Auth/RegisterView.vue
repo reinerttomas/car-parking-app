@@ -5,7 +5,7 @@
       <div class="flex flex-col gap-2 mb-4">
         <label for="name" class="required">Name</label>
         <input
-          v-model="name"
+          v-model="user.name"
           id="name"
           name="name"
           type="text"
@@ -19,7 +19,7 @@
       <div class="flex flex-col gap-2 mb-4">
         <label for="email" class="required">Email</label>
         <input
-          v-model="email"
+          v-model="user.email"
           id="email"
           name="email"
           type="email"
@@ -33,7 +33,7 @@
       <div class="flex flex-col gap-2 mb-4">
         <label for="password" class="required">Password</label>
         <input
-          v-model="password"
+          v-model="user.password"
           id="password"
           name="password"
           type="password"
@@ -47,7 +47,7 @@
       <div class="flex flex-col gap-2">
         <label for="password_confirmation" class="required">Confirm password</label>
         <input
-          v-model="passwordConfirmation"
+          v-model="user.password_confirmation"
           id="password_confirmation"
           name="password_confirmation"
           type="password"
@@ -72,45 +72,32 @@
 <script setup>
 import IconSpinner from '@/components/IconSpinner.vue'
 import ValidationError from '@/components/ValidationError.vue'
-import { reactive, ref } from 'vue'
-import { useMutation } from 'vue-query'
-import { useRouter } from 'vue-router'
-import { register } from '@/api/auth'
-import { useAuthStore } from '@/stores/auth'
+import { reactive } from 'vue'
+import useRegisterMutation from '@/composables/Auth/useRegisterMutation'
+import { AxiosError } from 'axios'
 
-const router = useRouter()
-const name = ref('')
-const email = ref('')
-const password = ref('')
-const passwordConfirmation = ref('')
+const user = reactive({
+  name: '',
+  email: '',
+  password: '',
+  password_confirmation: ''
+})
 const errors = reactive({})
 
-const {
-  isLoading,
-  isError,
-  mutateAsync: registerMutate
-} = useMutation((newUser) => register(newUser))
+const { isLoading, isError, mutateAsync: register } = useRegisterMutation()
 
 const handleRegister = async () => {
-  const { setAccessToken } = useAuthStore()
-
   try {
-    const { accessToken } = await registerMutate({
-      name: name.value,
-      email: email.value,
-      password: password.value,
-      password_confirmation: passwordConfirmation.value
-    })
-
-    setAccessToken(accessToken)
-    router.push({ name: 'vehicles' })
+    await register(user)
   } catch (error) {
-    if (error.response.data.errors) {
-      errors.value = error.response.data.errors
+    if (error instanceof AxiosError) {
+      if (error.response.data.errors) {
+        errors.value = error.response.data.errors
+      }
     }
   } finally {
-    password.value = ''
-    passwordConfirmation.value = ''
+    user.password = ''
+    user.password_confirmation = ''
   }
 }
 </script>

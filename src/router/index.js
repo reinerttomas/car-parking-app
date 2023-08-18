@@ -1,7 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
-import { getVehicle } from '@/api/vehicle'
-import HomeView from '../views/HomeView.vue'
+import HomeView from '@/views/HomeView.vue'
 
 function guest() {
   const { isAuthenticated } = useAuthStore()
@@ -16,20 +15,6 @@ function auth() {
 
   if (!isAuthenticated) {
     return { name: 'login' }
-  }
-}
-
-async function vehicle(to) {
-  const { id } = to.params
-
-  try {
-    await getVehicle(id)
-  } catch (error) {
-    if (error.response.status === 404) {
-      return { name: 'not-found' }
-    }
-
-    throw error
   }
 }
 
@@ -86,7 +71,7 @@ const router = createRouter({
       path: '/vehicles/:id/edit',
       name: 'vehicles-edit',
       component: () => import('@/views/Vehicles/EditView.vue'),
-      beforeEnter: [auth, vehicle]
+      beforeEnter: auth
     }
   ]
 })

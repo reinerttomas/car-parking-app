@@ -1,7 +1,10 @@
-import axios from 'axios'
+import axios, { isAxiosError } from 'axios'
+import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 
 export const useAxios = () => {
+  const router = useRouter()
+
   const client = axios.create({
     baseURL: import.meta.env.VITE_API_URL,
     withCredentials: true
@@ -18,17 +21,27 @@ export const useAxios = () => {
     return config
   })
 
-  client.interceptors.response.use((error) => {
-    if (error.response) {
-      const { destroyAccessToken } = useAuthStore()
+  client.interceptors.response.use(
+    (response) => {
+      return response
+    },
+    async (error) => {
+      if (isAxiosError(error)) {
+        const { destroyAccessToken } = useAuthStore()
 
-      if (error.response?.status === 401) {
-        destroyAccessToken()
+        if (error.response.status === 401) {
+          destroyAccessToken()
+          router.push({ name: 'login' })
+        }
+
+        if (error.response.status === 404) {
+          router.push({ name: 'not-found' })
+        }
       }
-    }
 
-    return Promise.resolve(error)
-  })
+      return Promise.reject(error)
+    }
+  )
 
   return { client }
 }

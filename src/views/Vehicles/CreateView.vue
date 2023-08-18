@@ -45,37 +45,28 @@
 import IconSpinner from '@/components/IconSpinner.vue'
 import ValidationError from '@/components/ValidationError.vue'
 import { reactive } from 'vue'
-import { useMutation } from 'vue-query'
-import { storeVehicle } from '@/api/vehicle'
 import { useRouter } from 'vue-router'
+import useStoreVehicleMutation from '@/composables/Vehicle/useStoreVehicleMutation'
+import { isAxiosError } from 'axios'
 
 const vehicle = reactive({
   plateNumber: '',
   description: ''
 })
 const errors = reactive({})
-
-const {
-  isLoading,
-  isError,
-  mutateAsync: storeVehicleMutate
-} = useMutation((vehicle) => storeVehicle(vehicle))
-
 const router = useRouter()
+const { isLoading, isError, mutateAsync: storeVehicle } = useStoreVehicleMutation()
 
 const handleSubmit = async () => {
   try {
-    await storeVehicleMutate(vehicle)
-
+    await storeVehicle(vehicle)
     router.push({ name: 'vehicles' })
   } catch (error) {
-    if (error.response.status === 422) {
-      errors.value = error.response.data.errors
+    if (isAxiosError(error)) {
+      if (error.response.data.errors) {
+        errors.value = error.response.data.errors
+      }
     }
-
-    /**
-     * TODO: add error message
-     */
   }
 }
 </script>
