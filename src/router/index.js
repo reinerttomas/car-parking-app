@@ -6,7 +6,7 @@ function guest() {
   const { isAuthenticated } = useAuthStore()
 
   if (isAuthenticated) {
-    return { name: 'vehicles' }
+    return { name: 'parkings-active' }
   }
 }
 
@@ -71,6 +71,18 @@ const router = createRouter({
       path: '/vehicles/:id/edit',
       name: 'vehicles-edit',
       component: () => import('@/views/Vehicles/EditView.vue'),
+      beforeEnter: auth
+    },
+    {
+      path: '/parkings/active',
+      name: 'parkings-active',
+      component: () => import('@/views/Parkings/ActiveParkingView.vue'),
+      beforeEnter: auth
+    },
+    {
+      path: '/parkings/create',
+      name: 'parkings-create',
+      component: () => import('@/views/Parkings/CreateParkingView.vue'),
       beforeEnter: auth
     }
   ]

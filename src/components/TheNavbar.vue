@@ -11,8 +11,9 @@
           myParking
         </h2>
       </RouterLink>
-      <template v-if="isAuthenticated"
-        ><RouterLink class="router-link" :to="{ name: 'vehicles' }">Vehicles</RouterLink>
+      <template v-if="isAuthenticated">
+        <RouterLink class="router-link" :to="{ name: 'parkings-active' }">Parkings</RouterLink>
+        <RouterLink class="router-link" :to="{ name: 'vehicles' }">Vehicles</RouterLink>
       </template>
     </div>
     <div class="flex gap-4 items-center">

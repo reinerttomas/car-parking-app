@@ -5,7 +5,7 @@
       <div class="flex flex-col gap-2 mb-4">
         <label for="name" class="required">Name</label>
         <input
-          v-model="user.name"
+          v-model="form.name"
           id="name"
           name="name"
           type="text"
@@ -19,7 +19,7 @@
       <div class="flex flex-col gap-2 mb-4">
         <label for="email" class="required">Email</label>
         <input
-          v-model="user.email"
+          v-model="form.email"
           id="email"
           name="email"
           type="email"
@@ -33,7 +33,7 @@
       <div class="flex flex-col gap-2 mb-4">
         <label for="password" class="required">Password</label>
         <input
-          v-model="user.password"
+          v-model="form.password"
           id="password"
           name="password"
           type="password"
@@ -47,7 +47,7 @@
       <div class="flex flex-col gap-2">
         <label for="password_confirmation" class="required">Confirm password</label>
         <input
-          v-model="user.password_confirmation"
+          v-model="form.password_confirmation"
           id="password_confirmation"
           name="password_confirmation"
           type="password"
@@ -74,9 +74,9 @@ import IconSpinner from '@/components/IconSpinner.vue'
 import ValidationError from '@/components/ValidationError.vue'
 import { reactive } from 'vue'
 import useRegisterMutation from '@/composables/Auth/useRegisterMutation'
-import { AxiosError } from 'axios'
+import { isAxiosError } from 'axios'
 
-const user = reactive({
+const form = reactive({
   name: '',
   email: '',
   password: '',
@@ -88,16 +88,16 @@ const { isLoading, isError, mutateAsync: register } = useRegisterMutation()
 
 const handleRegister = async () => {
   try {
-    await register(user)
+    await register(form)
   } catch (error) {
-    if (error instanceof AxiosError) {
-      if (error.response.data.errors) {
+    if (isAxiosError(error)) {
+      if (error.response.status === 422) {
         errors.value = error.response.data.errors
       }
     }
   } finally {
-    user.password = ''
-    user.password_confirmation = ''
+    form.password = ''
+    form.password_confirmation = ''
   }
 }
 </script>

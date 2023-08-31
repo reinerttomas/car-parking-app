@@ -5,8 +5,8 @@ export default () => {
   const { client } = useAxios()
 
   return useQuery({
-    queryKey: 'vehicles',
-    queryFn: async () => await client.get('vehicles'),
+    queryKey: 'zones',
+    queryFn: async () => await client.get('zones'),
     select: (response) => response.data.data
   })
 }

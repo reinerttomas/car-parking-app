@@ -8,9 +8,9 @@
 
     <div class="border-t h-[1px] my-6"></div>
 
-    <div v-if="!isLoading" class="flex flex-col gap-2">
+    <div class="flex flex-col gap-2">
       <div
-        v-for="vehicle in vehicles.data"
+        v-for="vehicle in vehicles"
         :key="vehicle.id"
         class="flex bg-gray-100 w-full p-2 justify-between"
       >
@@ -45,7 +45,7 @@
 import useVehiclesQuery from '@/composables/Vehicle/useVehiclesQuery'
 import useDeleteVehicleMutation from '@/composables/Vehicle/useDeleteVehicleMutation'
 
-const { isLoading, data: vehicles } = useVehiclesQuery()
+const { data: vehicles } = useVehiclesQuery()
 const { mutateAsync: deleteVehicle } = useDeleteVehicleMutation()
 
 const handleDelete = async (vehicle) => {

@@ -10,7 +10,7 @@
           name="current_password"
           id="current_password"
           class="form-input"
-          v-model="passwords.current_password"
+          v-model="form.current_password"
           :disabled="isLoading"
         />
         <ValidationError v-if="isError" :messages="errors.value?.current_password" />
@@ -22,7 +22,7 @@
           name="password"
           id="password"
           class="form-input"
-          v-model="passwords.password"
+          v-model="form.password"
           :disabled="isLoading"
         />
         <ValidationError v-if="isError" :messages="errors.value?.password" />
@@ -34,7 +34,7 @@
           name="password_confirmation"
           id="password_confirmation"
           class="form-input"
-          v-model="passwords.password_confirmation"
+          v-model="form.password_confirmation"
           :disabled="isLoading"
         />
       </div>
@@ -56,7 +56,7 @@ import { reactive } from 'vue'
 import { isAxiosError } from 'axios'
 import usePasswordMutation from '@/composables/Profile/usePasswordMutation'
 
-const passwords = reactive({
+const form = reactive({
   current_password: '',
   password: '',
   password_confirmation: ''
@@ -67,17 +67,17 @@ const { isLoading, isSuccess, isError, mutateAsync: changePassword } = usePasswo
 
 const handleSubmit = async () => {
   try {
-    await changePassword(passwords)
+    await changePassword(form)
   } catch (error) {
     if (isAxiosError(error)) {
-      if (error.response.data.errors) {
+      if (error.response.status === 422) {
         errors.value = error.response.data.errors
       }
     }
   } finally {
-    passwords.current_password = ''
-    passwords.password = ''
-    passwords.password_confirmation = ''
+    form.current_password = ''
+    form.password = ''
+    form.password_confirmation = ''
   }
 }
 </script>

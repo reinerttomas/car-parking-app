@@ -5,7 +5,7 @@
       <div class="flex flex-col gap-2 mb-4">
         <label for="plateNumber" class="required">License plate</label>
         <input
-          v-model="vehicle.plateNumber"
+          v-model="form.plateNumber"
           id="plateNumber"
           name="plateNumber"
           type="text"
@@ -17,7 +17,7 @@
       <div class="flex flex-col gap-2">
         <label for="description" class="required">Description</label>
         <input
-          v-model="vehicle.description"
+          v-model="form.description"
           id="description"
           name="description"
           type="text"
@@ -45,25 +45,22 @@
 import IconSpinner from '@/components/IconSpinner.vue'
 import ValidationError from '@/components/ValidationError.vue'
 import { reactive } from 'vue'
-import { useRouter } from 'vue-router'
 import useStoreVehicleMutation from '@/composables/Vehicle/useStoreVehicleMutation'
 import { isAxiosError } from 'axios'
 
-const vehicle = reactive({
+const form = reactive({
   plateNumber: '',
   description: ''
 })
 const errors = reactive({})
-const router = useRouter()
 const { isLoading, isError, mutateAsync: storeVehicle } = useStoreVehicleMutation()
 
 const handleSubmit = async () => {
   try {
-    await storeVehicle(vehicle)
-    router.push({ name: 'vehicles' })
+    await storeVehicle(form)
   } catch (error) {
     if (isAxiosError(error)) {
-      if (error.response.data.errors) {
+      if (error.response.status === 422) {
         errors.value = error.response.data.errors
       }
     }

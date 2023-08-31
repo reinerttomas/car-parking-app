@@ -1,10 +1,8 @@
 <template>
-  <form v-if="isSuccess" @submit.prevent="handleSubmit">
+  <form @submit.prevent="handleSubmit">
     <div class="flex flex-col mx-auto md:w-96 w-full">
       <h1 class="text-2xl font-bold mb-4 text-center">Edit profile</h1>
-      <div class="alert alert-success mb-4" v-show="isSuccessMutation">
-        Profile has been updated.
-      </div>
+      <div class="alert alert-success mb-4" v-show="isSuccess">Profile has been updated.</div>
       <div class="flex flex-col gap-2 mb-4">
         <label for="name" class="required">Name</label>
         <input
@@ -12,7 +10,7 @@
           name="name"
           id="name"
           class="form-input"
-          v-model="user.name"
+          v-model="form.name"
           :disabled="isLoading"
         />
         <ValidationError v-if="isError" :messages="errors.value?.name" />
@@ -24,7 +22,7 @@
           name="email"
           id="email"
           class="form-input"
-          v-model="user.email"
+          v-model="form.email"
           :disabled="isLoading"
         />
         <ValidationError v-if="isError" :messages="errors.value?.email" />
@@ -43,40 +41,35 @@
 <script setup>
 import IconSpinner from '@/components/IconSpinner.vue'
 import ValidationError from '@/components/ValidationError.vue'
-import { reactive, watchEffect } from 'vue'
+import { reactive, watch } from 'vue'
 import useProfileQuery from '@/composables/Profile/useProfileQuery'
 import useProfileMutation from '@/composables/Profile/useProfileMutation'
 import { isAxiosError } from 'axios'
 
-const user = reactive({
+const form = reactive({
   name: '',
   email: ''
 })
 const errors = reactive({})
 
-const { isSuccess, data } = useProfileQuery()
+const { data: profile } = useProfileQuery()
 
-watchEffect(() => {
-  if (data.value) {
-    const { name, email } = data.value
-    user.name = name
-    user.email = email
+watch(profile, () => {
+  if (profile.value) {
+    const { name, email } = profile.value
+    form.name = name
+    form.email = email
   }
 })
 
-const {
-  isLoading,
-  isSuccess: isSuccessMutation,
-  isError,
-  mutateAsync: updateProfile
-} = useProfileMutation()
+const { isLoading, isSuccess, isError, mutateAsync: updateProfile } = useProfileMutation()
 
 const handleSubmit = async () => {
   try {
-    await updateProfile(user)
+    await updateProfile(form)
   } catch (error) {
     if (isAxiosError(error)) {
-      if (error.response.data.errors) {
+      if (error.response.status === 422) {
         errors.value = error.response.data.errors
       }
     }

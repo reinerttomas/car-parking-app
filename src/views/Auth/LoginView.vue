@@ -5,7 +5,7 @@
       <div class="flex flex-col gap-2 mb-4">
         <label for="email" class="required">Email</label>
         <input
-          v-model="credentials.email"
+          v-model="form.email"
           id="email"
           name="email"
           type="text"
@@ -21,7 +21,7 @@
       <div class="flex flex-col gap-2 mb-4">
         <label for="password" class="required">Password</label>
         <input
-          v-model="credentials.password"
+          v-model="form.password"
           id="password"
           name="password"
           type="password"
@@ -50,9 +50,9 @@ import IconSpinner from '@/components/IconSpinner.vue'
 import ValidationError from '@/components/ValidationError.vue'
 import { reactive } from 'vue'
 import useLoginMutation from '@/composables/Auth/useLoginMutation'
-import { AxiosError } from 'axios'
+import { isAxiosError } from 'axios'
 
-const credentials = reactive({
+const form = reactive({
   email: '',
   password: ''
 })
@@ -62,15 +62,15 @@ const { isLoading, isError, mutateAsync: login } = useLoginMutation()
 
 const handleLogin = async () => {
   try {
-    await login(credentials)
+    await login(form)
   } catch (error) {
-    if (error instanceof AxiosError) {
-      if (error.response.data.errors) {
+    if (isAxiosError(error)) {
+      if (error.response.status === 422) {
         errors.value = error.response.data.errors
       }
     }
   } finally {
-    credentials.password = ''
+    form.password = ''
   }
 }
 </script>

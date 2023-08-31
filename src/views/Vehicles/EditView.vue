@@ -1,11 +1,11 @@
 <template>
-  <form v-if="isSuccess" @submit.prevent="handleSubmit" novalidate>
+  <form @submit.prevent="handleSubmit" novalidate>
     <div class="flex flex-col mx-auto md:w-96 w-full">
       <h1 class="text-2xl font-bold mb-4 text-center">Edit vehicle</h1>
       <div class="flex flex-col gap-2 mb-4">
         <label for="plate_number" class="required">License plate</label>
         <input
-          v-model="vehicle.plateNumber"
+          v-model="form.plateNumber"
           id="plate_number"
           name="plate_number"
           type="text"
@@ -17,7 +17,7 @@
       <div class="flex flex-col gap-2">
         <label for="description">Description</label>
         <input
-          v-model="vehicle.description"
+          v-model="form.description"
           id="description"
           name="description"
           type="text"
@@ -44,7 +44,7 @@
 <script setup>
 import IconSpinner from '@/components/IconSpinner.vue'
 import ValidationError from '@/components/ValidationError.vue'
-import { reactive, ref, watchEffect } from 'vue'
+import { reactive, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import useVehicleQuery from '@/composables/Vehicle/useVehicleQuery'
 import useUpdateVehicleMutation from '@/composables/Vehicle/useUpdateVehicleMutation'
@@ -52,19 +52,19 @@ import { isAxiosError } from 'axios'
 
 const route = useRoute()
 const id = ref(route.params.id)
-const vehicle = reactive({
+const form = reactive({
   plateNumber: '',
   description: ''
 })
 const errors = reactive({})
 
-const { isSuccess, data } = useVehicleQuery(id)
+const { data: vehicle } = useVehicleQuery(id)
 
-watchEffect(() => {
-  if (data.value) {
-    const { plateNumber, description } = data.value
-    vehicle.plateNumber = plateNumber
-    vehicle.description = description
+watch(vehicle, () => {
+  if (vehicle.value) {
+    const { plateNumber, description } = vehicle.value
+    form.plateNumber = plateNumber
+    form.description = description
   }
 })
 
@@ -72,10 +72,10 @@ const { isLoading, isError, mutateAsync: updateVehicle } = useUpdateVehicleMutat
 
 const handleSubmit = async () => {
   try {
-    await updateVehicle(vehicle)
+    await updateVehicle(form)
   } catch (error) {
     if (isAxiosError(error)) {
-      if (error.response.data.errors) {
+      if (error.response.status === 422) {
         errors.value = error.response.data.errors
       }
     }
