@@ -14,6 +14,7 @@
       <template v-if="isAuthenticated">
         <RouterLink class="router-link" :to="{ name: 'parkings-active' }">Parkings</RouterLink>
         <RouterLink class="router-link" :to="{ name: 'vehicles' }">Vehicles</RouterLink>
+        <RouterLink class="router-link" :to="{ name: 'parkings-history' }">History</RouterLink>
       </template>
     </div>
     <div class="flex gap-4 items-center">
