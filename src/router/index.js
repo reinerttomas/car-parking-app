@@ -46,43 +46,43 @@ const router = createRouter({
     {
       path: '/profile',
       name: 'profile',
-      component: () => import('@/views/Profile/EditView.vue'),
+      component: () => import('@/views/Profile/ProfileEditView.vue'),
       beforeEnter: auth
     },
     {
       path: '/profile/change-password',
       name: 'change-password',
-      component: () => import('@/views/Profile/ChangePassword.vue'),
+      component: () => import('@/views/Profile/ProfilePasswordChange.vue'),
       beforeEnter: auth
     },
     {
       path: '/vehicles',
       name: 'vehicles',
-      component: () => import('@/views/Vehicles/ListView.vue'),
+      component: () => import('@/views/Vehicles/VehicleListView.vue'),
       beforeEnter: auth
     },
     {
       path: '/vehicles/create',
       name: 'vehicles-create',
-      component: () => import('@/views/Vehicles/CreateView.vue'),
+      component: () => import('@/views/Vehicles/VehicleCreateView.vue'),
       beforeEnter: auth
     },
     {
       path: '/vehicles/:id/edit',
       name: 'vehicles-edit',
-      component: () => import('@/views/Vehicles/EditView.vue'),
+      component: () => import('@/views/Vehicles/VehicleEditView.vue'),
       beforeEnter: auth
     },
     {
       path: '/parkings/active',
       name: 'parkings-active',
-      component: () => import('@/views/Parkings/ActiveParkingView.vue'),
+      component: () => import('@/views/Parkings/ParkingActiveView.vue'),
       beforeEnter: auth
     },
     {
       path: '/parkings/create',
       name: 'parkings-create',
-      component: () => import('@/views/Parkings/CreateParkingView.vue'),
+      component: () => import('@/views/Parkings/ParkingCreateView.vue'),
       beforeEnter: auth
     },
     {
